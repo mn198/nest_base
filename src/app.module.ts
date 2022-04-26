@@ -17,7 +17,11 @@ import { UserModule } from './user/user.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get('MONGO_ROOT_USER')}:${configService.get('MONGO_ROOT_PASSWORD')}@${configService.get('MONGO_URI')}:${configService.get('MONGO_PORT')}?authSource=admin`,
+        uri: `mongodb://${configService.get(
+          'MONGO_ROOT_USER',
+        )}:${configService.get('MONGO_ROOT_PASSWORD')}@${configService.get(
+          'MONGO_URI',
+        )}:${configService.get('MONGO_PORT')}?authSource=admin`,
         dbName: configService.get('MONGO_DATABASE'),
       }),
       inject: [ConfigService],

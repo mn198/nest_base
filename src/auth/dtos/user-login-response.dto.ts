@@ -6,4 +6,8 @@ export class UserLoginResponseDto {
   @ApiProperty()
   @Expose()
   access_token: string;
+
+  @ApiProperty()
+  @Expose()
+  refresh_token: string;
 }

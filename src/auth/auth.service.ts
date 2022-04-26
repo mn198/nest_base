@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
+    private userService: UserService,
+    private jwtService: JwtService,
+    private config: ConfigService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -23,20 +25,44 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = {
-      // displayName: user.displayName,
-      // username: user.username,
-      id: user._id,
+    // const payload = {
+    // displayName: user.displayName,
+    // username: user.username,
+    //   id: user._id,
+    // };
+    return this.generateTokens(user._id);
+  }
+
+  async generateTokens(userId: string) {
+    const jwtPayload = {
+      sub: userId,
     };
+    const [at, rt] = await Promise.all([
+      this.jwtService.signAsync(jwtPayload, {
+        secret: this.config.get<string>('JWT_SECRET'),
+        expiresIn: '30m',
+      }),
+      this.jwtService.signAsync(jwtPayload, {
+        secret: this.config.get<string>('REFRESH_JWT_SECRET'),
+        expiresIn: '7d',
+      }),
+    ]);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: at,
+      refresh_token: rt,
     };
+  }
+
+  async refreshTokens(userId: string) {
+    const tokens = await this.generateTokens(userId);
+    return tokens;
   }
 
   verifyAccessToken(accessToken: string) {
     try {
       const payload = this.jwtService.verify(accessToken, {
-        secret: process.env.JWT_SECRET,
+        secret: this.config.get('JWT_SECRET'),
       });
 
       return payload;
