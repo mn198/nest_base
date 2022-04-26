@@ -1,43 +1,46 @@
-import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from './schemas/user.schema';
+import { User } from './schemas/user.schema';
+import { IUser } from './interfaces/user.interface';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<IUser>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const salt = await bcrypt.genSalt();
-    const hash = await bcrypt.hash(createUserDto.password, salt);
-    createUserDto.password = hash;
-
-    return await this.userModel.create(createUserDto);
+  async create(user: IUser): Promise<IUser> {
+    return this.userModel.create(user);
   }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(username: string) {
-    return this.userModel.findOne({ username });
+  async findOneByUsername(username: string): Promise<IUser> {
+    return this.userModel.findOne({ username }).lean().exec();
+  }
+
+  async findOneById(id: string): Promise<IUser> {
+    return this.userModel.findOne({ _id: id }).exec();
   }
 
   findOneByEmail(email: string) {
-    return this.userModel.findOne({ email });
+    return this.userModel.findOne({ email }).exec();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<IUser> {
+    return this.userModel.findOneAndUpdate(
+      { _id: id },
+      { $set: updateUserDto },
+      { new: true },
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string): Promise<IUser> {
+    return this.userModel.findOneAndRemove({ _id: id });
   }
 
   count() {

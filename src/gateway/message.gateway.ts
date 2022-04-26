@@ -31,7 +31,8 @@ export class MessageGateway
   async handleConnection(client: Socket): Promise<void> {
     const token = client.handshake.query.token.toString();
     const payload = this.authService.verifyAccessToken(token);
-    const user = payload && (await this.userService.findOne(payload.username));
+    const user =
+      payload && (await this.userService.findOneByUsername(payload.username));
     const room = { id: '123' };
 
     if (!user) {

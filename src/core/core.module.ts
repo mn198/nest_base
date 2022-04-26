@@ -6,7 +6,7 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 @Module({
   providers: [
     // { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
-    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+    // { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
   ],
 })
 export class CoreModule {}

@@ -7,6 +7,7 @@ import * as express from 'express';
 import { join } from 'path';
 
 import { AppModule } from './app.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -18,6 +19,13 @@ async function bootstrap() {
     '/static/images',
     express.static(join(process.cwd(), '/static/images')),
   );
+
+  const options = new DocumentBuilder()
+    .setTitle('API docs')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
 
   // cors config
   // app.enableCors({

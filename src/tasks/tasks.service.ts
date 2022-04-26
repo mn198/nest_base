@@ -23,16 +23,16 @@ export class TasksService {
   //   this.crawlerService.crawlWholePageWithCache();
   // }
 
-  @Timeout(1000)
-  async handleInterval() {
-    const totalAccount = await this.userService.count();
-    if (totalAccount == 0) {
-      const account = {
-        displayName: 'Admin',
-        username: 'admin123',
-        password: 'admin123',
-      };
-      return this.userService.create(account);
-    }
-  }
+  // @Timeout(1000)
+  // async handleInterval() {
+  //   const totalAccount = await this.userService.count();
+  //   if (totalAccount == 0) {
+  //     const account = {
+  //       displayName: 'Admin',
+  //       username: 'admin123',
+  //       password: 'admin123',
+  //     };
+  //     return this.userService.create(account);
+  //   }
+  // }
 }
