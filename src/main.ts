@@ -21,6 +21,7 @@ async function bootstrap() {
   );
 
   const options = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('API docs')
     .setVersion('1.0')
     .build();
@@ -52,6 +53,6 @@ async function bootstrap() {
   //     }),
   //   }),
   // );
-  await app.listen(5000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();

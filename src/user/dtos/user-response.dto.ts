@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()
-export class ProfileResponseDto {
+export class UserResponseDto {
   @ApiProperty()
   @Expose()
   id: string;
@@ -21,7 +21,7 @@ export class ProfileResponseDto {
 
   @ApiProperty()
   @Expose()
-  photos: string[];
+  photos: string;
 
   @ApiProperty()
   @Expose()

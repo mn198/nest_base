@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { ApiOkResponse, ApiTags, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
 import { AuthService } from './auth.service';
@@ -13,7 +13,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 @Controller()
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('auth/login')
   @UseGuards(LocalAuthGuard)
@@ -26,6 +26,7 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOkResponse({ type: ProfileResponseDto })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getProfile(@Request() req) {
@@ -35,7 +36,7 @@ export class AuthController {
   @Get('auth/google')
   @UseGuards(GoogleOauthGuard)
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  googleAuth(@Request() req) {}
+  googleAuth(@Request() req) { }
 
   @Get('auth/google/callback')
   @UseGuards(GoogleOauthGuard)
