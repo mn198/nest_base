@@ -29,11 +29,11 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // cors config
-  // app.enableCors({
-  //   credentials: true,
-  //   origin: ['https://admin.nmarttt.asia', 'https://manga-frontend.vercel.app'],
-  //   methods: 'PUT, POST, PATCH, DELETE, GET',
-  // });
+  app.enableCors({
+    // credentials: true,
+    origin: ['http://localhost:5000', 'http://localhost'],
+    methods: 'PUT, POST, PATCH, DELETE, GET',
+  });
 
   // session config
   // app.set('trust proxy', 1);

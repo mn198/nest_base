@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
+  Inject,
+  CACHE_MANAGER,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -26,11 +28,12 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { ObjectIdValidationPipe } from 'src/common/pipes/object-id.pipe';
 import { UserResponseDto } from './dtos/user-response.dto';
+import { Cache } from 'cache-manager';
 
 @Controller('users')
 @ApiTags('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private userService: UserService, @Inject(CACHE_MANAGER) private cacheManager: Cache) { }
 
   @Post()
   @ApiCreatedResponse({ type: CreateUserResponseDto })
