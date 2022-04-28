@@ -27,16 +27,26 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { ObjectIdValidationPipe } from 'src/common/pipes/object-id.pipe';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { McacheService } from 'src/mcache/mcache.service';
+import { UsernameExistGuard } from './guards/username-exist.guard';
 
 @Controller('users')
 @ApiTags('users')
 export class UserController {
-  constructor(private userService: UserService, private cacheService: McacheService) { }
+  constructor(
+    private userService: UserService,
+    private cacheService: McacheService,
+  ) {}
 
-  cacheKey = 'users:'
+  cacheKey = 'users:';
 
   @Post()
+  @UseGuards(UsernameExistGuard)
   @ApiCreatedResponse({ type: CreateUserResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid object id' })
+  @ApiResponse({
+    status: 409,
+    description: 'Account with this username already exists',
+  })
   async create(
     @Body() createUserDto: CreateUserDto,
   ): Promise<CreateUserResponseDto> {
@@ -61,7 +71,7 @@ export class UserController {
   async findOne(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<UserResponseDto> {
-    const cachedData = await this.cacheService.get(this.cacheKey + id)
+    const cachedData = await this.cacheService.get(this.cacheKey + id);
     if (cachedData) {
       return plainToInstance(UserResponseDto, cachedData);
     }
@@ -69,8 +79,8 @@ export class UserController {
     const user = await this.userService.findOneById(id);
     if (user) {
       const data = await plainToInstance(UserResponseDto, user);
-      await this.cacheService.set(this.cacheKey + id, data)
-      return data
+      await this.cacheService.set(this.cacheKey + id, data);
+      return data;
     }
 
     throw new BadRequestException('Object id not found');
@@ -98,7 +108,7 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const user = await this.userService.update(id, updateUserDto);
     if (user) {
-      await this.cacheService.del(this.cacheKey + id)
+      await this.cacheService.del(this.cacheKey + id);
       return plainToInstance(UserResponseDto, user);
     }
     throw new BadRequestException('Object id not found');
@@ -115,7 +125,7 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const user = await this.userService.remove(id);
     if (user) {
-      await this.cacheService.del(this.cacheKey + id)
+      await this.cacheService.del(this.cacheKey + id);
       return plainToInstance(UserResponseDto, user);
     }
     throw new BadRequestException('Object id not found');

@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, Interval, Timeout } from '@nestjs/schedule';
+// import { Cron, Interval, Timeout } from '@nestjs/schedule';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
-export class TasksService {
-  constructor(private readonly userService: UserService) {}
+export class TaskService {
+  constructor(private userService: UserService) {}
 
-  private readonly logger = new Logger(TasksService.name);
+  private logger = new Logger(TaskService.name);
 
   // @Cron('45 * * * * *')
   // handleCron() {

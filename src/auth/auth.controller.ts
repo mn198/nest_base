@@ -1,5 +1,12 @@
-import { Body, Controller, ForbiddenException, Get, Post, Request, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiTags,
@@ -13,17 +20,17 @@ import { IUser } from 'src/user/interfaces/user.interface';
 
 import { AuthService } from './auth.service';
 import { ProfileResponseDto } from './dtos/profile-response.dto';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { UserLoginResponseDto } from './dtos/user-login-response.dto';
 import { UserLoginDto } from './dtos/user-login.dto';
 import { GoogleOauthGuard } from './guards/google-oauth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
 
 @Controller()
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private jwtService: JwtService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('auth/login')
   @UseGuards(LocalAuthGuard)
@@ -35,16 +42,14 @@ export class AuthController {
   }
 
   @Post('auth/refresh')
-  // @UseGuards(RefreshJwtAuthGuard)
-  // @ApiBearerAuth()
   @ApiOkResponse({ type: UserLoginResponseDto })
   @ApiResponse({ status: 403, description: 'Invalid refresh token' })
-  async refresh(@Body() body) {
-    const data = this.authService.verifyRefreshToken(body.refresh_token)
+  async refresh(@Body() body: RefreshTokenDto) {
+    const data = this.authService.verifyRefreshToken(body.refresh_token);
     if (data) {
       return this.authService.refreshTokens(data.sub);
     }
-    throw new ForbiddenException("Invalid refresh token");
+    throw new ForbiddenException('Invalid refresh token');
   }
 
   @Get('profile')
@@ -59,7 +64,7 @@ export class AuthController {
   @Get('auth/google')
   @UseGuards(GoogleOauthGuard)
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  googleAuth() { }
+  googleAuth() {}
 
   @Get('auth/google/callback')
   @UseGuards(GoogleOauthGuard)

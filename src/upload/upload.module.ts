@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
-import { UploadsController } from './uploads.controller';
+import { UploadController } from './upload.controller';
 
 @Module({
   imports: [
@@ -8,6 +8,6 @@ import { UploadsController } from './uploads.controller';
       dest: './static/images',
     }),
   ],
-  controllers: [UploadsController],
+  controllers: [UploadController],
 })
-export class UploadsModule {}
+export class UploadModule {}

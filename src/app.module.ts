@@ -7,9 +7,13 @@ import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import configuration from './configuration';
 import { CoreModule } from './core/core.module';
-import { GatewaysModule } from './gateway/gateway.module';
+// import { GatewaysModule } from './gateway/gateway.module';
+// import { TaskModule } from './task/task.module';
+// import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
 import { McacheModule } from './mcache/mcache.module';
+import { MqueueModule } from './mqueue/mqueue.module';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -28,12 +32,25 @@ import { McacheModule } from './mcache/mcache.module';
       }),
       inject: [ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        redis: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
+      }),
+    }),
     ScheduleModule.forRoot(),
     CoreModule,
     AuthModule,
     UserModule,
-    GatewaysModule,
+    // GatewaysModule,
+    // TaskModule,
+    // UploadModule,
     McacheModule,
+    MqueueModule,
   ],
   controllers: [],
   providers: [],

@@ -21,7 +21,7 @@ function transformValue(doc, ret: { [key: string]: any }) {
     versionKey: false,
     transform: transformValue,
   },
-  timestamps: true
+  timestamps: true,
 })
 export class User extends Document {
   @Prop({ enum: [null, 'google', 'facebook'] })

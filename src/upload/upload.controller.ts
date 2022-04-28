@@ -30,7 +30,7 @@ const editFileName = (req, file, callback) => {
 };
 
 @Controller('uploads')
-export class UploadsController {
+export class UploadController {
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(

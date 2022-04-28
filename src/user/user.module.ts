@@ -7,10 +7,10 @@ import { McacheModule } from 'src/mcache/mcache.module';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    McacheModule
+    McacheModule,
   ],
   exports: [UserService],
   controllers: [UserController],
   providers: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

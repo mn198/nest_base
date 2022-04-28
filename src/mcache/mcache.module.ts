@@ -13,11 +13,11 @@ import { McacheService } from './mcache.service';
         store: redisStore,
         host: configService.get('REDIS_HOST'),
         port: configService.get('REDIS_PORT'),
-        ttl: configService.get('REDIS_TTL')
-      })
-    })
+        ttl: configService.get('REDIS_TTL'),
+      }),
+    }),
   ],
   exports: [McacheService],
-  providers: [McacheService]
+  providers: [McacheService],
 })
-export class McacheModule { }
+export class McacheModule {}
