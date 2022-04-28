@@ -8,8 +8,6 @@ import {
   Delete,
   UseGuards,
   BadRequestException,
-  Inject,
-  CACHE_MANAGER,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -28,12 +26,14 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { ObjectIdValidationPipe } from 'src/common/pipes/object-id.pipe';
 import { UserResponseDto } from './dtos/user-response.dto';
-import { Cache } from 'cache-manager';
+import { McacheService } from 'src/mcache/mcache.service';
 
 @Controller('users')
 @ApiTags('users')
 export class UserController {
-  constructor(private userService: UserService, @Inject(CACHE_MANAGER) private cacheManager: Cache) { }
+  constructor(private userService: UserService, private cacheService: McacheService) { }
+
+  cacheKey = 'users:'
 
   @Post()
   @ApiCreatedResponse({ type: CreateUserResponseDto })
@@ -61,10 +61,18 @@ export class UserController {
   async findOne(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<UserResponseDto> {
+    const cachedData = await this.cacheService.get(this.cacheKey + id)
+    if (cachedData) {
+      return plainToInstance(UserResponseDto, cachedData);
+    }
+
     const user = await this.userService.findOneById(id);
     if (user) {
-      return plainToInstance(UserResponseDto, user);
+      const data = await plainToInstance(UserResponseDto, user);
+      await this.cacheService.set(this.cacheKey + id, data)
+      return data
     }
+
     throw new BadRequestException('Object id not found');
   }
 
@@ -90,6 +98,7 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const user = await this.userService.update(id, updateUserDto);
     if (user) {
+      await this.cacheService.del(this.cacheKey + id)
       return plainToInstance(UserResponseDto, user);
     }
     throw new BadRequestException('Object id not found');
@@ -106,6 +115,7 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const user = await this.userService.remove(id);
     if (user) {
+      await this.cacheService.del(this.cacheKey + id)
       return plainToInstance(UserResponseDto, user);
     }
     throw new BadRequestException('Object id not found');

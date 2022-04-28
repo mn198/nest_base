@@ -9,6 +9,7 @@ import configuration from './configuration';
 import { CoreModule } from './core/core.module';
 import { GatewaysModule } from './gateway/gateway.module';
 import { UserModule } from './user/user.module';
+import { McacheModule } from './mcache/mcache.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     UserModule,
     GatewaysModule,
+    McacheModule,
   ],
   controllers: [],
   providers: [],

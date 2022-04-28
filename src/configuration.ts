@@ -8,4 +8,5 @@ export default () => ({
   MONGO_ROOT_PASSWORD: process.env.MONGO_ROOT_PASSWORD,
   REDIS_HOST: process.env.REDIS_HOST,
   REDIS_PORT: process.env.REDIS_PORT,
+  REDIS_TTL: process.env.REDIS_TTL,
 });
