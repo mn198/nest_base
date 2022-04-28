@@ -26,4 +26,8 @@ export class UserResponseDto {
   @ApiProperty()
   @Expose()
   picture: string;
+
+  @ApiProperty()
+  @Expose()
+  updatedAt: string;
 }

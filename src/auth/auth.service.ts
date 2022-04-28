@@ -10,7 +10,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private config: ConfigService,
-  ) {}
+  ) { }
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.userService.findOneByUsername(username);
@@ -63,6 +63,18 @@ export class AuthService {
     try {
       const payload = this.jwtService.verify(accessToken, {
         secret: this.config.get('JWT_SECRET'),
+      });
+
+      return payload;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  verifyRefreshToken(accessToken: string) {
+    try {
+      const payload = this.jwtService.verify(accessToken, {
+        secret: this.config.get('REFRESH_JWT_SECRET'),
       });
 
       return payload;

@@ -4,10 +4,10 @@ import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()
 export class CreateUserDto {
-  @ApiProperty({ minLength: 8, maxLength: 32, required: true, type: 'string' })
+  @ApiProperty({ minLength: 4, maxLength: 32, required: true, type: 'string' })
   @Expose()
   @IsString()
-  @MinLength(8)
+  @MinLength(4)
   @MaxLength(32)
   username: string;
 

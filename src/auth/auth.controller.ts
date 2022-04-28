@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import {
   ApiOkResponse,
   ApiTags,
@@ -22,7 +23,7 @@ import { RefreshJwtAuthGuard } from './guards/refresh-jwt-auth.guard';
 @Controller()
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService, private jwtService: JwtService) { }
 
   @Post('auth/login')
   @UseGuards(LocalAuthGuard)
@@ -34,12 +35,16 @@ export class AuthController {
   }
 
   @Post('auth/refresh')
-  @UseGuards(RefreshJwtAuthGuard)
-  @ApiBearerAuth()
+  // @UseGuards(RefreshJwtAuthGuard)
+  // @ApiBearerAuth()
   @ApiOkResponse({ type: UserLoginResponseDto })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async refresh(@CurrentUser() user: IUser) {
-    return this.authService.refreshTokens(user.id);
+  @ApiResponse({ status: 403, description: 'Invalid refresh token' })
+  async refresh(@Body() body) {
+    const data = this.authService.verifyRefreshToken(body.refresh_token)
+    if (data) {
+      return this.authService.refreshTokens(data.sub);
+    }
+    throw new ForbiddenException("Invalid refresh token");
   }
 
   @Get('profile')
@@ -54,7 +59,7 @@ export class AuthController {
   @Get('auth/google')
   @UseGuards(GoogleOauthGuard)
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  googleAuth() {}
+  googleAuth() { }
 
   @Get('auth/google/callback')
   @UseGuards(GoogleOauthGuard)
