@@ -8,4 +8,5 @@ export interface IUser {
   email: string;
   picture: string;
   photos: string[];
+  roles?: string[];
 }

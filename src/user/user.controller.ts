@@ -28,6 +28,9 @@ import { ObjectIdValidationPipe } from 'src/common/pipes/object-id.pipe';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { McacheService } from 'src/mcache/mcache.service';
 import { UsernameExistGuard } from './guards/username-exist.guard';
+import { RolesGuard } from 'src/rbac/roles.guard';
+import { Roles } from 'src/rbac/role.decorator';
+import { Role } from 'src/rbac/role.enum';
 
 @Controller('users')
 @ApiTags('users')
@@ -115,7 +118,8 @@ export class UserController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid object id' })

@@ -2,6 +2,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { Role } from 'src/rbac/role.enum';
 
 const SALT_ROUNDS = 10;
 
@@ -9,6 +10,8 @@ function transformValue(doc, ret: { [key: string]: any }) {
   delete ret._id;
   delete ret.password;
 }
+
+const roleEnum = Object.keys(Role).map((key) => Role[key]);
 
 @Schema({
   toObject: {
@@ -52,6 +55,9 @@ export class User extends Document {
 
   @Prop()
   photos: string[];
+
+  @Prop({ type: [String], enum: roleEnum, default: [Role.Basic] })
+  roles: string[];
 
   getEncryptedPassword: Function;
 }
