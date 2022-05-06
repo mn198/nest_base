@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import serverlessExpress from '@vendia/serverless-express';
+import { Callback, Context, Handler } from 'aws-lambda';
 // import MongoStore = require('connect-mongo');
 // import * as session from 'express-session';
 import * as express from 'express';
@@ -8,6 +10,8 @@ import { join } from 'path';
 
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+let server: Handler;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -53,6 +57,19 @@ async function bootstrap() {
   //     }),
   //   }),
   // );
-  await app.listen(process.env.PORT);
+  // await app.listen(process.env.PORT);
+  await app.init();
+
+  const expressApp = app.getHttpAdapter().getInstance();
+  return serverlessExpress({ app: expressApp });
+
 }
-bootstrap();
+
+export const handler: Handler = async (
+  event: any,
+  context: Context,
+  callback: Callback,
+) => {
+  server = server ?? (await bootstrap());
+  return server(event, context, callback);
+};

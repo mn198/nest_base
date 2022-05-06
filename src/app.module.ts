@@ -23,11 +23,7 @@ import { BullModule } from '@nestjs/bull';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: `mongodb://${configService.get(
-          'MONGO_ROOT_USER',
-        )}:${configService.get('MONGO_ROOT_PASSWORD')}@${configService.get(
-          'MONGO_URI',
-        )}:${configService.get('MONGO_PORT')}?authSource=admin`,
+        uri: 'mongodb://localhost:27017',
         dbName: configService.get('MONGO_DATABASE'),
       }),
       inject: [ConfigService],
