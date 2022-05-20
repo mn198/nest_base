@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { IUser } from 'src/user/interfaces/user.interface';
+import { IUser } from '../user/interfaces/user.interface';
 
 import { AuthService } from './auth.service';
 import { ProfileResponseDto } from './dtos/profile-response.dto';

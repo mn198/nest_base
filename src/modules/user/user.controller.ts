@@ -10,7 +10,6 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { IUser } from './interfaces/user.interface';
 import {
   ApiBearerAuth,
@@ -31,6 +30,7 @@ import { UsernameExistGuard } from './guards/username-exist.guard';
 import { RolesGuard } from 'src/rbac/roles.guard';
 import { Roles } from 'src/rbac/role.decorator';
 import { Role } from 'src/rbac/role.enum';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 @ApiTags('users')

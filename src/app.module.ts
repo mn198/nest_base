@@ -3,17 +3,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 
-import { AuthModule } from './auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import configuration from './configuration';
 import { CoreModule } from './core/core.module';
-// import { GatewaysModule } from './gateway/gateway.module';
-// import { TaskModule } from './task/task.module';
-// import { UploadModule } from './upload/upload.module';
-import { UserModule } from './user/user.module';
+import { TaskModule } from './task/task.module';
 import { McacheModule } from './mcache/mcache.module';
 import { MqueueModule } from './mqueue/mqueue.module';
 import { BullModule } from '@nestjs/bull';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -42,9 +41,9 @@ import { BullModule } from '@nestjs/bull';
     CoreModule,
     AuthModule,
     UserModule,
+    UploadModule,
     // GatewaysModule,
-    // TaskModule,
-    // UploadModule,
+    TaskModule,
     McacheModule,
     MqueueModule,
   ],

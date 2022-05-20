@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { UserService } from 'src/modules/user/user.service';
 // import { Cron, Interval, Timeout } from '@nestjs/schedule';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class TaskService {

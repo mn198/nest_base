@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from 'src/modules/user/user.module';
 import { TaskService } from './task.service';
 
 @Module({

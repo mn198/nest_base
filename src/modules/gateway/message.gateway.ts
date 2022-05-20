@@ -7,9 +7,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-
-import { AuthService } from 'src/auth/auth.service';
-import { UserService } from 'src/user/user.service';
+import { AuthService } from '../auth/auth.service';
+import { UserService } from '../user/user.service';
 
 import { JoinRoomDto } from './dto/join-room.dto';
 

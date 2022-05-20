@@ -10,8 +10,8 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { slugify } from 'src/common/utils/slugify';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 const imageFileFilter = (req, file, callback) => {
   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
