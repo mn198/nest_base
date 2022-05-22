@@ -8,10 +8,24 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOkResponse,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { slugify } from 'src/common/utils/slugify';
+import { Roles } from 'src/rbac/role.decorator';
+import { Role } from 'src/rbac/role.enum';
+import { RolesGuard } from 'src/rbac/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UploadResponseDto } from './dtos/upload-response.dto';
+import { UploadService } from './upload.service';
 
 const imageFileFilter = (req, file, callback) => {
   if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
@@ -29,49 +43,85 @@ const editFileName = (req, file, callback) => {
   callback(null, `${name}-${new Date().getTime()}${fileExtName}`);
 };
 
+const imageConfig = {
+  storage: diskStorage({
+    destination: './static/images',
+    filename: editFileName,
+  }),
+  fileFilter: imageFileFilter,
+};
+
+const fileSchema = {
+  schema: {
+    type: 'object',
+    properties: {
+      file: {
+        type: 'string',
+        format: 'binary',
+      },
+    },
+  },
+};
+
+const multipleFilesSchema = {
+  schema: {
+    type: 'object',
+    properties: {
+      file: {
+        type: 'array',
+        items: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  },
+};
+
 @Controller('uploads')
+@ApiTags('uploads')
 export class UploadController {
-  @UseGuards(JwtAuthGuard)
+  constructor(private uploadService: UploadService) {}
+
   @Post()
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './static/images',
-        filename: editFileName,
-      }),
-      fileFilter: imageFileFilter,
-    }),
-  )
+  @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(fileSchema)
+  @ApiOkResponse({ type: UploadResponseDto })
+  @ApiResponse({
+    status: 400,
+    description: 'Empty file | Only image files are allowed!',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseInterceptors(FileInterceptor('file', imageConfig))
   async uploadedFile(@UploadedFile() file) {
-    const response = {
-      originalname: file.originalname,
-      filename: file.filename,
-      path: '/static/images/' + file.filename,
-    };
-    return response;
+    if (!file) {
+      throw new BadRequestException('Empty file');
+    }
+    const data = await this.uploadService.create(file);
+    return plainToInstance(UploadResponseDto, data);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('multiple')
-  @UseInterceptors(
-    FilesInterceptor('image', 20, {
-      storage: diskStorage({
-        destination: './static/images',
-        filename: editFileName,
-      }),
-      fileFilter: imageFileFilter,
-    }),
-  )
+  @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(multipleFilesSchema)
+  @ApiOkResponse({ type: UploadResponseDto })
+  @ApiResponse({
+    status: 400,
+    description: 'Empty file | Only image files are allowed!',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @UseInterceptors(FilesInterceptor('file', 20, imageConfig))
   async uploadMultipleFiles(@UploadedFiles() files) {
-    const response = [];
-    files.forEach((file) => {
-      const fileReponse = {
-        originalname: file.originalname,
-        filename: file.filename,
-        path: '/static/images/' + file.filename,
-      };
-      response.push(fileReponse);
-    });
-    return response;
+    if (!files || !files.length) {
+      throw new BadRequestException('Empty file');
+    }
+    const data = await this.uploadService.createMany(files);
+    return plainToInstance(UploadResponseDto, data);
   }
 }
