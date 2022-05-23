@@ -12,7 +12,6 @@ import {
 import { UserService } from './user.service';
 import { IUser } from './interfaces/user.interface';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiResponse,
@@ -27,10 +26,8 @@ import { ObjectIdValidationPipe } from 'src/common/pipes/object-id.pipe';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { McacheService } from 'src/mcache/mcache.service';
 import { UsernameExistGuard } from './guards/username-exist.guard';
-import { RolesGuard } from 'src/rbac/roles.guard';
-import { Roles } from 'src/rbac/role.decorator';
 import { Role } from 'src/rbac/role.enum';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
 @Controller('users')
 @ApiTags('users')
@@ -66,11 +63,9 @@ export class UserController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @Auth([Role.Basic])
   @ApiOkResponse({ type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid object id' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findOne(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<UserResponseDto> {
@@ -90,21 +85,17 @@ export class UserController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @Auth([Role.Basic])
   @ApiOkResponse({ type: [UserResponseDto] })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(): Promise<UserResponseDto[]> {
     const users = await this.userService.findAll();
     return plainToInstance(UserResponseDto, users);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  @Auth([Role.Basic])
   @ApiOkResponse({ type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid object id' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async update(
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -118,12 +109,9 @@ export class UserController {
   }
 
   @Delete(':id')
-  @Roles(Role.Admin)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth()
+  @Auth([Role.Admin])
   @ApiOkResponse({ type: UserResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid object id' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async remove(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<UserResponseDto> {

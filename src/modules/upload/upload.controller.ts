@@ -4,12 +4,10 @@ import {
   Post,
   UploadedFile,
   UploadedFiles,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOkResponse,
@@ -19,11 +17,9 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Auth } from 'src/common/decorators/auth.decorator';
 import { slugify } from 'src/common/utils/slugify';
-import { Roles } from 'src/rbac/role.decorator';
 import { Role } from 'src/rbac/role.enum';
-import { RolesGuard } from 'src/rbac/roles.guard';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UploadResponseDto } from './dtos/upload-response.dto';
 import { UploadService } from './upload.service';
 
@@ -84,9 +80,7 @@ export class UploadController {
   constructor(private uploadService: UploadService) {}
 
   @Post()
-  @Roles(Role.Admin)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth()
+  @Auth([Role.Admin])
   @ApiConsumes('multipart/form-data')
   @ApiBody(fileSchema)
   @ApiOkResponse({ type: UploadResponseDto })
@@ -94,7 +88,6 @@ export class UploadController {
     status: 400,
     description: 'Empty file | Only image files are allowed!',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseInterceptors(FileInterceptor('file', imageConfig))
   async uploadedFile(@UploadedFile() file) {
     if (!file) {
@@ -105,9 +98,7 @@ export class UploadController {
   }
 
   @Post('multiple')
-  @Roles(Role.Admin)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiBearerAuth()
+  @Auth([Role.Admin])
   @ApiConsumes('multipart/form-data')
   @ApiBody(multipleFilesSchema)
   @ApiOkResponse({ type: UploadResponseDto })
@@ -115,7 +106,6 @@ export class UploadController {
     status: 400,
     description: 'Empty file | Only image files are allowed!',
   })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @UseInterceptors(FilesInterceptor('file', 20, imageConfig))
   async uploadMultipleFiles(@UploadedFiles() files) {
     if (!files || !files.length) {
